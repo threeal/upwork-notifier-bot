@@ -14,7 +14,7 @@ export default {
         .setDescription("The message to be sent later")
         .setRequired(true),
     ),
-  execute: (interaction: ChatInputCommandInteraction<CacheType>) => {
+  execute: async (interaction: ChatInputCommandInteraction<CacheType>) => {
     const message = interaction.options.getString("message");
     setTimeout(() => interaction.channel?.send(`${message}`), 10000);
     interaction.reply(`Scheduled "${message}" in 10 seconds`);

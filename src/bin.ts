@@ -22,7 +22,7 @@ yargs(hideBin(process.argv))
       console.log("Commands registered!");
     });
 
-    client.on(Events.InteractionCreate, (interaction) => {
+    client.on(Events.InteractionCreate, async (interaction) => {
       if (!interaction.isChatInputCommand()) return;
       console.log(`Received command: ${interaction.commandName}`);
 
@@ -30,7 +30,7 @@ yargs(hideBin(process.argv))
         (command) => command.data.name === interaction.commandName,
       );
       if (command !== undefined) {
-        command.execute(interaction);
+        await command.execute(interaction);
       } else {
         console.warn(
           `Could not find handler for command: ${interaction.commandName}`,

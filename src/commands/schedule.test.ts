@@ -16,7 +16,7 @@ it("should schedule a message to be sent later", async () => {
     return key === "message" ? "some message" : "";
   });
 
-  ScheduleCommand.execute(
+  await ScheduleCommand.execute(
     interaction as unknown as ChatInputCommandInteraction<CacheType>,
   );
 
