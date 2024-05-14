@@ -1,1 +1,1 @@
-export { fibonacciSequence } from "./sequence.js";
+export { default as ScheduleCommand } from "./commands/schedule.js";
