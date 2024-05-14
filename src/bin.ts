@@ -4,7 +4,6 @@ import { Client, Events, GatewayIntentBits, Routes } from "discord";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import ListJobsCommand from "./commands/jobs/list.js";
-import ScheduleCommand from "./commands/schedule.js";
 
 yargs(hideBin(process.argv))
   .scriptName("upwork-notifier-bot")
@@ -12,7 +11,7 @@ yargs(hideBin(process.argv))
   .command("start", "Start the Upwork notifier bot", async () => {
     const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-    const commands = [ListJobsCommand, ScheduleCommand];
+    const commands = [ListJobsCommand];
 
     client.once(Events.ClientReady, async (client) => {
       console.log("Client ready!");
