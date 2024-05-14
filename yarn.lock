@@ -4942,6 +4942,7 @@ __metadata:
   resolution: "upwork-notifier-bot@workspace:."
   dependencies:
     "@eslint/js": "npm:^9.2.0"
+    "@jest/globals": "npm:^29.7.0"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.12.11"
     "@types/yargs": "npm:^17.0.32"
