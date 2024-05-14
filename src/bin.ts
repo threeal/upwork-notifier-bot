@@ -1,23 +1,44 @@
 #!/usr/bin/env node
 
+import { Client, Events, GatewayIntentBits, Routes } from "discord";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { fibonacciSequence } from "./sequence.js";
+import ScheduleCommand from "./commands/schedule.js";
 
 yargs(hideBin(process.argv))
-  .scriptName("my_fibonacci")
+  .scriptName("upwork-notifier-bot")
   .version("0.0.0")
-  .command(
-    "$0 <n>",
-    "Generate a Fibonacci sequence up to the given number of terms.",
-    (yargs) =>
-      yargs.positional("n", {
-        demandOption: true,
-        describe: "The number of terms",
-        type: "number",
-      }),
-    (argv) => {
-      process.stdout.write(fibonacciSequence(argv.n).join(" ") + "\n");
-    },
-  )
+  .command("start", "Start the Upwork notifier bot", async () => {
+    const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+
+    const commands = [ScheduleCommand];
+
+    client.once(Events.ClientReady, async (client) => {
+      console.log("Client ready!");
+
+      await client.rest.put(Routes.applicationCommands(client.application.id), {
+        body: commands.map((command) => command.data.toJSON()),
+      });
+      console.log("Commands registered!");
+    });
+
+    client.on(Events.InteractionCreate, (interaction) => {
+      if (!interaction.isChatInputCommand()) return;
+      console.log(`Received command: ${interaction.commandName}`);
+
+      const command = commands.find(
+        (command) => command.data.name === interaction.commandName,
+      );
+      if (command !== undefined) {
+        command.execute(interaction);
+      } else {
+        console.warn(
+          `Could not find handler for command: ${interaction.commandName}`,
+        );
+      }
+    });
+
+    client.login(process.env["BOT_TOKEN"]);
+  })
+  .demandCommand(1)
   .parse();
