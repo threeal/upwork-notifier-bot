@@ -1,23 +1,20 @@
 #!/usr/bin/env node
 
+import { Client, Events, GatewayIntentBits } from "discord";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { fibonacciSequence } from "./sequence.js";
 
 yargs(hideBin(process.argv))
-  .scriptName("my_fibonacci")
+  .scriptName("upwork-notifier-bot")
   .version("0.0.0")
-  .command(
-    "$0 <n>",
-    "Generate a Fibonacci sequence up to the given number of terms.",
-    (yargs) =>
-      yargs.positional("n", {
-        demandOption: true,
-        describe: "The number of terms",
-        type: "number",
-      }),
-    (argv) => {
-      process.stdout.write(fibonacciSequence(argv.n).join(" ") + "\n");
-    },
-  )
+  .command("start", "Start the Upwork notifier bot", async () => {
+    const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+
+    client.once(Events.ClientReady, () => {
+      console.log("Client ready!");
+    });
+
+    client.login(process.env["BOT_TOKEN"]);
+  })
+  .demandCommand(1)
   .parse();
