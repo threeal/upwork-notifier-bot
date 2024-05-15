@@ -3,7 +3,7 @@
 import { Client, Events, GatewayIntentBits, Routes } from "discord";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import ScheduleCommand from "./commands/schedule.js";
+import ListJobsCommand from "./commands/jobs/list.js";
 
 yargs(hideBin(process.argv))
   .scriptName("upwork-notifier-bot")
@@ -11,7 +11,7 @@ yargs(hideBin(process.argv))
   .command("start", "Start the Upwork notifier bot", async () => {
     const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-    const commands = [ScheduleCommand];
+    const commands = [ListJobsCommand];
 
     client.once(Events.ClientReady, async (client) => {
       console.log("Client ready!");
@@ -22,7 +22,7 @@ yargs(hideBin(process.argv))
       console.log("Commands registered!");
     });
 
-    client.on(Events.InteractionCreate, (interaction) => {
+    client.on(Events.InteractionCreate, async (interaction) => {
       if (!interaction.isChatInputCommand()) return;
       console.log(`Received command: ${interaction.commandName}`);
 
@@ -30,7 +30,7 @@ yargs(hideBin(process.argv))
         (command) => command.data.name === interaction.commandName,
       );
       if (command !== undefined) {
-        command.execute(interaction);
+        await command.execute(interaction);
       } else {
         console.warn(
           `Could not find handler for command: ${interaction.commandName}`,
