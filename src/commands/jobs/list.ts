@@ -5,6 +5,7 @@ import {
 } from "discord";
 
 import RssParser from "rss-parser";
+import { formatRssFeedItem } from "../../feed.js";
 
 const rssParser = new RssParser();
 
@@ -23,9 +24,7 @@ export default {
     const feed = await rssParser.parseURL(`${url}`);
     await interaction.reply(`Listing ${feed.items.length} jobs:`);
     for (const item of feed.items) {
-      await interaction.channel?.send(
-        `**${item.title}**\n\n<${item.link}>\n\n${item.contentSnippet}`,
-      );
+      await interaction.channel?.send(formatRssFeedItem(item));
     }
   },
 };

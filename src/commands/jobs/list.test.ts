@@ -1,24 +1,27 @@
-import { CacheType, ChatInputCommandInteraction } from "discord";
 import { jest } from "@jest/globals";
+import { CacheType, ChatInputCommandInteraction } from "discord";
+import { formatRssFeedItem } from "../../feed.js";
+
+const rssFeedItems = [
+  {
+    title: "First Job",
+    link: "https://www.upwork.com/link-to-first-job",
+    contentSnippet: "Description of the first job",
+    guid: "1",
+  },
+  {
+    title: "Second Job",
+    link: "https://www.upwork.com/link-to-second-job",
+    contentSnippet: "Description of the second job",
+    guid: "2",
+  },
+];
 
 jest.unstable_mockModule("rss-parser", () => ({
   default: class {
     async parseURL(url: string) {
       if (url === "https://www.upwork.com/some-rss") {
-        return {
-          items: [
-            {
-              title: "First Job",
-              link: "https://www.upwork.com/link-to-first-job",
-              contentSnippet: "Description of the first job",
-            },
-            {
-              title: "Second Job",
-              link: "https://www.upwork.com/link-to-second-job",
-              contentSnippet: "Description of the second job",
-            },
-          ],
-        };
+        return { items: rssFeedItems };
       }
     }
   },
@@ -44,15 +47,12 @@ it("should list jobs from the given RSS feed URL", async () => {
   );
 
   expect(interaction.reply).toHaveBeenCalledTimes(1);
-  expect(interaction.reply).toHaveBeenLastCalledWith("Listing 2 jobs:");
+  expect(interaction.reply).toHaveBeenLastCalledWith(
+    `Listing ${rssFeedItems.length} jobs:`,
+  );
 
-  expect(interaction.channel.send).toHaveBeenCalledTimes(2);
-  expect(interaction.channel.send.mock.calls).toEqual([
-    [
-      "**First Job**\n\n<https://www.upwork.com/link-to-first-job>\n\nDescription of the first job",
-    ],
-    [
-      "**Second Job**\n\n<https://www.upwork.com/link-to-second-job>\n\nDescription of the second job",
-    ],
-  ]);
+  expect(interaction.channel.send).toHaveBeenCalledTimes(rssFeedItems.length);
+  expect(interaction.channel.send.mock.calls).toEqual(
+    rssFeedItems.map((item) => [formatRssFeedItem(item)]),
+  );
 });

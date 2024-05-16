@@ -1,9 +1,10 @@
-import { CacheType, ChatInputCommandInteraction } from "discord";
 import { jest } from "@jest/globals";
+import { CacheType, ChatInputCommandInteraction } from "discord";
+import { formatRssFeedItem } from "../../feed.js";
 
 jest.useFakeTimers();
 
-const rssItems = [
+const rssFeedItems = [
   {
     title: "First Job",
     link: "https://www.upwork.com/link-to-first-job",
@@ -22,7 +23,7 @@ jest.unstable_mockModule("rss-parser", () => ({
   default: class {
     async parseURL(url: string) {
       if (url === "https://www.upwork.com/some-rss") {
-        return { items: rssItems };
+        return { items: rssFeedItems };
       }
     }
   },
@@ -52,31 +53,28 @@ it("should subscribe jobs from the given RSS feed URL", async () => {
     "Subscribed to: <https://www.upwork.com/some-rss>",
   );
 
-  expect(interaction.channel.send).toHaveBeenCalledTimes(2);
-  expect(interaction.channel.send.mock.calls).toEqual([
-    [
-      "**First Job**\n\n<https://www.upwork.com/link-to-first-job>\n\nDescription of the first job",
-    ],
-    [
-      "**Second Job**\n\n<https://www.upwork.com/link-to-second-job>\n\nDescription of the second job",
-    ],
-  ]);
+  expect(interaction.channel.send).toHaveBeenCalledTimes(rssFeedItems.length);
+  expect(interaction.channel.send.mock.calls).toEqual(
+    rssFeedItems.map((item) => [formatRssFeedItem(item)]),
+  );
 
   await jest.advanceTimersByTimeAsync(60000);
 
-  expect(interaction.channel.send).toHaveBeenCalledTimes(2);
+  expect(interaction.channel.send).toHaveBeenCalledTimes(rssFeedItems.length);
+  expect(interaction.channel.send.mock.calls).toEqual(
+    rssFeedItems.map((item) => [formatRssFeedItem(item)]),
+  );
 
-  rssItems.push({
+  rssFeedItems.push({
     title: "Third Job",
     link: "https://www.upwork.com/link-to-third-job",
     contentSnippet: "Description of the third job",
     guid: "3",
   });
-
   await jest.advanceTimersByTimeAsync(60000);
 
-  expect(interaction.channel.send).toHaveBeenCalledTimes(3);
-  expect(interaction.channel.send.mock.calls[2]).toEqual([
-    "**Third Job**\n\n<https://www.upwork.com/link-to-third-job>\n\nDescription of the third job",
-  ]);
+  expect(interaction.channel.send).toHaveBeenCalledTimes(rssFeedItems.length);
+  expect(interaction.channel.send.mock.calls).toEqual(
+    rssFeedItems.map((item) => [formatRssFeedItem(item)]),
+  );
 });
