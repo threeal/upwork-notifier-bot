@@ -40,7 +40,7 @@ yargs(hideBin(process.argv))
       }
     });
 
-    client.login(getToken());
+    client.login(await getToken());
   })
   .demandCommand(1)
   .parse();
