@@ -5,6 +5,7 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import ListJobsCommand from "./commands/jobs/list.js";
 import SubscribeJobsCommand from "./commands/jobs/subscribe.js";
+import { getToken } from "./token.js";
 
 yargs(hideBin(process.argv))
   .scriptName("upwork-notifier-bot")
@@ -39,7 +40,7 @@ yargs(hideBin(process.argv))
       }
     });
 
-    client.login(process.env["BOT_TOKEN"]);
+    client.login(getToken());
   })
   .demandCommand(1)
   .parse();
