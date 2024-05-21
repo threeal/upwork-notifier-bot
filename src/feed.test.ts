@@ -22,18 +22,24 @@ it("should format an RSS feed item", () => {
     }),
   ).toBe(
     [
-      bold("Some Job"),
+      `:mag_right: ${bold("Some Job")}`,
       [
-        "Budget: $100",
-        "Hourly Range: $10.00-$20.00",
-        "Posted On: Jan 1, 2020 00:00 UTC",
+        ":money_with_wings: Budget: $100",
+        ":money_with_wings: Hourly Range: $10.00-$20.00",
+        ":calendar_spiral: Posted On: Jan 1, 2020 00:00 UTC",
       ].join("\n"),
       "Description of the job\n\nAnother description of the job",
-      hideLinkEmbed("https://www.upwork.com/link-to-some-job"),
+      `:link: ${hideLinkEmbed("https://www.upwork.com/link-to-some-job")}`,
+      Array(18).fill(":four_leaf_clover:").join(""),
     ].join("\n\n"),
   );
 });
 
 it("should format an RSS feed item with undefined properties", () => {
-  expect(formatRssFeedItem({})).toBe("**Unknown Job**");
+  expect(formatRssFeedItem({})).toBe(
+    [
+      `:mag_right: ${bold("Unknown Job")}`,
+      Array(18).fill(":four_leaf_clover:").join(""),
+    ].join("\n\n"),
+  );
 });

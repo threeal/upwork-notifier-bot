@@ -8,7 +8,7 @@ import { Item } from "rss-parser";
  * @returns A string representation of the RSS feed item.
  */
 export function formatRssFeedItem(item: Item): string {
-  const lines: string[] = [bold(item.title ?? "Unknown Job")];
+  const lines: string[] = [`:mag_right: ${bold(item.title ?? "Unknown Job")}`];
 
   if (item.contentSnippet !== undefined) {
     const infos: string[] = [];
@@ -17,7 +17,11 @@ export function formatRssFeedItem(item: Item): string {
       .split("\n")
       .filter((line) => {
         if (line.match(/^(Budget:|Hourly Range:|Posted On:)/)) {
-          infos.push(line);
+          if (line.match(/^(Budget:|Hourly Range:)/)) {
+            infos.push(`:money_with_wings: ${line}`);
+          } else {
+            infos.push(`:calendar_spiral: ${line}`);
+          }
           return false;
         }
         return !line.match(/^(Category:|Skills:|Country:|click to apply)/);
@@ -33,8 +37,10 @@ export function formatRssFeedItem(item: Item): string {
   }
 
   if (item.link !== undefined) {
-    lines.push(hideLinkEmbed(item.link));
+    lines.push(`:link: ${hideLinkEmbed(item.link)}`);
   }
+
+  lines.push(Array(18).fill(":four_leaf_clover:").join(""));
 
   return lines.join("\n\n");
 }
