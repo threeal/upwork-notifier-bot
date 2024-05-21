@@ -1,3 +1,4 @@
+import { bold, hideLinkEmbed } from "discord";
 import { formatRssFeedItem } from "./feed.js";
 
 it("should format an RSS feed item", () => {
@@ -8,7 +9,11 @@ it("should format an RSS feed item", () => {
       contentSnippet: "Description of the job",
     }),
   ).toBe(
-    "**Some Job**\n\nDescription of the job\n\n<https://www.upwork.com/link-to-some-job>",
+    [
+      bold("Some Job"),
+      "Description of the job",
+      hideLinkEmbed("https://www.upwork.com/link-to-some-job"),
+    ].join("\n\n"),
   );
 });
 

@@ -1,3 +1,4 @@
+import { bold, hideLinkEmbed } from "discord";
 import { Item } from "rss-parser";
 
 /**
@@ -7,8 +8,8 @@ import { Item } from "rss-parser";
  * @returns A string representation of the RSS feed item.
  */
 export function formatRssFeedItem(item: Item): string {
-  const lines: string[] = [`**${item.title ?? "Unknown Job"}**`];
+  const lines: string[] = [bold(item.title ?? "Unknown Job")];
   if (item.contentSnippet !== undefined) lines.push(item.contentSnippet);
-  if (item.link !== undefined) lines.push(`<${item.link}>`);
+  if (item.link !== undefined) lines.push(hideLinkEmbed(item.link));
   return lines.join("\n\n");
 }
