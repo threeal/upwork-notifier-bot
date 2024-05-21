@@ -9,7 +9,24 @@ import { Item } from "rss-parser";
  */
 export function formatRssFeedItem(item: Item): string {
   const lines: string[] = [bold(item.title ?? "Unknown Job")];
-  if (item.contentSnippet !== undefined) lines.push(item.contentSnippet);
-  if (item.link !== undefined) lines.push(hideLinkEmbed(item.link));
+
+  if (item.contentSnippet !== undefined) {
+    const content = item.contentSnippet
+      .split("\n")
+      .filter((line) => {
+        return !line.match(
+          /^(Budget:|Hourly Range:|Posted On:|Category:|Skills:|Country:|click to apply)/,
+        );
+      })
+      .join("\n")
+      .trim();
+
+    lines.push(content);
+  }
+
+  if (item.link !== undefined) {
+    lines.push(hideLinkEmbed(item.link));
+  }
+
   return lines.join("\n\n");
 }

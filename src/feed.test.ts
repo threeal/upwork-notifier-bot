@@ -6,12 +6,24 @@ it("should format an RSS feed item", () => {
     formatRssFeedItem({
       title: "Some Job",
       link: "https://www.upwork.com/link-to-some-job",
-      contentSnippet: "Description of the job",
+      contentSnippet: [
+        "Description of the job",
+        "",
+        "Another description of the job",
+        "",
+        "Budget: $100",
+        "Hourly Range: $10.00-$20.00",
+        "Posted On: Jan 1, 2020 00:00 UTC",
+        "Category: some category",
+        "Skills: some skill",
+        "Country: some country",
+        "click to apply",
+      ].join("\n"),
     }),
   ).toBe(
     [
       bold("Some Job"),
-      "Description of the job",
+      "Description of the job\n\nAnother description of the job",
       hideLinkEmbed("https://www.upwork.com/link-to-some-job"),
     ].join("\n\n"),
   );
