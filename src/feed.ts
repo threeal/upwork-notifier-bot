@@ -8,7 +8,7 @@ import { Item } from "rss-parser";
  */
 export function formatRssFeedItem(item: Item): string {
   const lines: string[] = [`**${item.title ?? "Unknown Job"}**`];
-  if (item.link !== undefined) lines.push(`<${item.link}>`);
   if (item.contentSnippet !== undefined) lines.push(item.contentSnippet);
+  if (item.link !== undefined) lines.push(`<${item.link}>`);
   return lines.join("\n\n");
 }

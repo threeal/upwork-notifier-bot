@@ -8,7 +8,7 @@ it("should format an RSS feed item", () => {
       contentSnippet: "Description of the job",
     }),
   ).toBe(
-    "**Some Job**\n\n<https://www.upwork.com/link-to-some-job>\n\nDescription of the job",
+    "**Some Job**\n\nDescription of the job\n\n<https://www.upwork.com/link-to-some-job>",
   );
 });
 
