@@ -11,15 +11,23 @@ export function formatRssFeedItem(item: Item): string {
   const lines: string[] = [bold(item.title ?? "Unknown Job")];
 
   if (item.contentSnippet !== undefined) {
+    const infos: string[] = [];
+
     const content = item.contentSnippet
       .split("\n")
       .filter((line) => {
-        return !line.match(
-          /^(Budget:|Hourly Range:|Posted On:|Category:|Skills:|Country:|click to apply)/,
-        );
+        if (line.match(/^(Budget:|Hourly Range:|Posted On:)/)) {
+          infos.push(line);
+          return false;
+        }
+        return !line.match(/^(Category:|Skills:|Country:|click to apply)/);
       })
       .join("\n")
       .trim();
+
+    if (infos.length > 0) {
+      lines.push(infos.join("\n"));
+    }
 
     lines.push(content);
   }
