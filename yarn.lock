@@ -1802,6 +1802,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"catched-error-message@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "catched-error-message@npm:0.0.1"
+  checksum: 10c0/1f10cd4323a73bec7a57b7495730e5dad9995120b04e85b5f654f7b40dc6a36320d95cc55e49cdf78753158e18790ef725e2ec7309ebced3acd6c9a557ac075b
+  languageName: node
+  linkType: hard
+
 "chalk@npm:^2.4.2":
   version: 2.4.2
   resolution: "chalk@npm:2.4.2"
@@ -4927,6 +4934,7 @@ __metadata:
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.12.12"
     "@types/yargs": "npm:^17.0.32"
+    catched-error-message: "npm:^0.0.1"
     discord: "npm:discord.js@^14.15.2"
     eslint: "npm:^9.2.0"
     jest: "npm:^29.7.0"

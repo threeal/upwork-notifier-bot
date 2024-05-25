@@ -6,6 +6,7 @@ import {
 
 import RssParser from "rss-parser";
 import { formatRssFeedItem } from "../../feed.js";
+import { tryToSendMessageToChannel } from "../../message.js";
 
 const rssParser = new RssParser();
 
@@ -24,7 +25,10 @@ export default {
     const feed = await rssParser.parseURL(`${url}`);
     await interaction.reply(`Listing ${feed.items.length} jobs:`);
     for (const item of feed.items) {
-      await interaction.channel?.send(formatRssFeedItem(item));
+      await tryToSendMessageToChannel(
+        formatRssFeedItem(item),
+        interaction.channel,
+      );
     }
   },
 };
