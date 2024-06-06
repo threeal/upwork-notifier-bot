@@ -1,5 +1,26 @@
+import { getErrorMessage } from "catched-error-message";
 import { bold, hideLinkEmbed } from "discord";
-import { Item } from "rss-parser";
+import RssParser, { Item } from "rss-parser";
+
+const rssParser = new RssParser();
+
+/**
+ * Attempts to fetch RSS feed items from the given URL.
+ *
+ * @param url - The URL to fetch the RSS feed from.
+ * @returns A promise that resolves to a list of RSS feed items.
+ */
+export async function tryToFetchRssFeedFromUrl(url: string): Promise<Item[]> {
+  try {
+    const res = await rssParser.parseURL(url);
+    return res.items;
+  } catch (err) {
+    console.warn(
+      `Failed to fetch RSS feed from '${url}': ${getErrorMessage(err)}`,
+    );
+    return [];
+  }
+}
 
 /**
  * Formats the given RSS feed item into a string representation.
