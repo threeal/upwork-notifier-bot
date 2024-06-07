@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { getErrorMessage } from "catched-error-message";
 import { Client, Events, GatewayIntentBits, Routes } from "discord";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
@@ -16,7 +17,7 @@ yargs(hideBin(process.argv))
     const commands = [ListJobsCommand, SubscribeJobsCommand];
 
     client.once(Events.ClientReady, async (client) => {
-      console.log("Client ready!");
+      console.info(`Logged in as ${client.user.tag}!`);
 
       await client.rest.put(Routes.applicationCommands(client.application.id), {
         body: commands.map((command) => command.data.toJSON()),
@@ -40,7 +41,11 @@ yargs(hideBin(process.argv))
       }
     });
 
-    client.login(await getToken());
+    try {
+      await client.login(await getToken());
+    } catch (err) {
+      console.error(`Failed to log in: ${getErrorMessage(err)}`);
+    }
   })
   .demandCommand(1)
   .parse();
