@@ -1,5 +1,28 @@
+import { jest } from "@jest/globals";
 import { bold, hideLinkEmbed } from "discord";
-import { formatRssFeedItem } from "./feed.js";
+import { formatRssFeedItem, tryToFetchRssFeedFromUrl } from "./feed.js";
+
+const mockedConsoleWarning = jest.spyOn(console, "warn").mockReset();
+
+beforeEach(() => {
+  mockedConsoleWarning.mockClear();
+});
+
+it("should fetch RSS feed from a URL", async () => {
+  const feed = await tryToFetchRssFeedFromUrl(
+    "https://www.upwork.com/ab/feed/jobs/rss?q=some%20job",
+  );
+  expect(feed.length).toBeGreaterThan(0);
+  expect(mockedConsoleWarning.mock.calls.length).toBe(0);
+});
+
+it("should fail to fetch RSS feed from an invalid URL", async () => {
+  const feed = await tryToFetchRssFeedFromUrl("https://www.upwork.com");
+  expect(feed.length).toBe(0);
+  expect(mockedConsoleWarning).toHaveBeenLastCalledWith(
+    "Failed to fetch RSS feed from 'https://www.upwork.com': Status code 403",
+  );
+});
 
 it("should format an RSS feed item", () => {
   expect(

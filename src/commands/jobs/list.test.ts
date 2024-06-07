@@ -17,13 +17,13 @@ const rssFeedItems = [
   },
 ];
 
-jest.unstable_mockModule("rss-parser", () => ({
-  default: class {
-    async parseURL(url: string) {
-      if (url === "https://www.upwork.com/some-rss") {
-        return { items: rssFeedItems };
-      }
+jest.unstable_mockModule("../../feed.js", () => ({
+  formatRssFeedItem: formatRssFeedItem,
+  tryToFetchRssFeedFromUrl: async (url: string) => {
+    if (url === "https://www.upwork.com/some-rss") {
+      return rssFeedItems;
     }
+    return [];
   },
 }));
 
