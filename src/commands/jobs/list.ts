@@ -4,11 +4,8 @@ import {
   SlashCommandBuilder,
 } from "discord";
 
-import RssParser from "rss-parser";
-import { formatRssFeedItem } from "../../feed.js";
+import { formatRssFeedItem, tryToFetchRssFeedFromUrl } from "../../feed.js";
 import { tryToSendMessageToChannel } from "../../message.js";
-
-const rssParser = new RssParser();
 
 export default {
   data: new SlashCommandBuilder()
@@ -22,9 +19,9 @@ export default {
     ),
   execute: async (interaction: ChatInputCommandInteraction<CacheType>) => {
     const url = interaction.options.getString("url");
-    const feed = await rssParser.parseURL(`${url}`);
-    await interaction.reply(`Listing ${feed.items.length} jobs:`);
-    for (const item of feed.items) {
+    const feed = await tryToFetchRssFeedFromUrl(`${url}`);
+    await interaction.reply(`Listing ${feed.length} jobs:`);
+    for (const item of feed) {
       await tryToSendMessageToChannel(
         formatRssFeedItem(item),
         interaction.channel,
