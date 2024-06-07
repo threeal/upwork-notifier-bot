@@ -19,10 +19,15 @@ yargs(hideBin(process.argv))
     client.once(Events.ClientReady, async (client) => {
       console.info(`Logged in as ${client.user.tag}!`);
 
-      await client.rest.put(Routes.applicationCommands(client.application.id), {
-        body: commands.map((command) => command.data.toJSON()),
-      });
-      console.log("Commands registered!");
+      try {
+        await client.rest.put(
+          Routes.applicationCommands(client.application.id),
+          { body: commands.map((command) => command.data.toJSON()) },
+        );
+        console.info("Commands registered!");
+      } catch (err) {
+        console.error(`Failed to register commands: ${getErrorMessage(err)}`);
+      }
     });
 
     client.on(Events.InteractionCreate, async (interaction) => {
