@@ -4,11 +4,8 @@ import {
   SlashCommandBuilder,
 } from "discord";
 
-import RssParser from "rss-parser";
-import { formatRssFeedItem } from "../../feed.js";
+import { formatRssFeedItem, tryToFetchRssFeedFromUrl } from "../../feed.js";
 import { tryToSendMessageToChannel } from "../../message.js";
-
-const rssParser = new RssParser();
 
 export default {
   data: new SlashCommandBuilder()
@@ -26,8 +23,8 @@ export default {
 
     const guids = new Set<string>();
     const callback = async () => {
-      const feed = await rssParser.parseURL(`${url}`);
-      for (const item of feed.items) {
+      const feed = await tryToFetchRssFeedFromUrl(`${url}`);
+      for (const item of feed) {
         if (guids.has(`${item.guid}`)) continue;
         const sent = await tryToSendMessageToChannel(
           formatRssFeedItem(item),
