@@ -38,7 +38,13 @@ yargs(hideBin(process.argv))
         (command) => command.data.name === interaction.commandName,
       );
       if (command !== undefined) {
-        await command.execute(interaction);
+        try {
+          await command.execute(interaction);
+        } catch (err) {
+          console.error(
+            `Failed to execute handler for command: ${command.data.name}, error: ${getErrorMessage(err)}`,
+          );
+        }
       } else {
         console.warn(
           `Could not find handler for command: ${interaction.commandName}`,
