@@ -1,30 +1,37 @@
 import { jest } from "@jest/globals";
 import { bold, hideLinkEmbed } from "discord";
-import { formatRssFeedItem, tryToFetchRssFeedFromUrl } from "./feed.js";
+import { pino } from "pino";
+import pinoTest from "pino-test";
 
-const mockedConsoleWarning = jest.spyOn(console, "warn").mockReset();
-
-beforeEach(() => {
-  mockedConsoleWarning.mockClear();
-});
+const stream = pinoTest.sink();
+jest.unstable_mockModule("./logger.js", () => ({
+  default: pino(stream),
+}));
 
 it("should fetch RSS feed from a URL", async () => {
+  const { tryToFetchRssFeedFromUrl } = await import("./feed.js");
+
   const feed = await tryToFetchRssFeedFromUrl(
     "https://www.upwork.com/ab/feed/jobs/rss?q=some%20job",
   );
   expect(feed.length).toBeGreaterThan(0);
-  expect(mockedConsoleWarning.mock.calls.length).toBe(0);
 });
 
 it("should fail to fetch RSS feed from an invalid URL", async () => {
+  const { tryToFetchRssFeedFromUrl } = await import("./feed.js");
+
   const feed = await tryToFetchRssFeedFromUrl("https://www.upwork.com");
   expect(feed.length).toBe(0);
-  expect(mockedConsoleWarning).toHaveBeenLastCalledWith(
-    "Failed to fetch RSS feed from 'https://www.upwork.com': Status code 403",
-  );
+
+  await pinoTest.once(stream, {
+    level: 40,
+    msg: "Failed to fetch RSS feed from 'https://www.upwork.com': Status code 403",
+  });
 });
 
-it("should format an RSS feed item", () => {
+it("should format an RSS feed item", async () => {
+  const { formatRssFeedItem } = await import("./feed.js");
+
   expect(
     formatRssFeedItem({
       title: "Some Job",
@@ -58,11 +65,20 @@ it("should format an RSS feed item", () => {
   );
 });
 
-it("should format an RSS feed item with undefined properties", () => {
+it("should format an RSS feed item with undefined properties", async () => {
+  const { formatRssFeedItem } = await import("./feed.js");
+
   expect(formatRssFeedItem({})).toBe(
     [
       `:mag_right: ${bold("Unknown Job")}`,
       Array(18).fill(":four_leaf_clover:").join(""),
     ].join("\n\n"),
   );
+});
+
+afterAll(async () => {
+  const logger = (await import("./logger.js")).default;
+
+  logger.info("stream ended");
+  await pinoTest.once(stream, { level: 30, msg: "stream ended" });
 });

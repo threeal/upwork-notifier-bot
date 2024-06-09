@@ -6,6 +6,7 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import ListJobsCommand from "./commands/jobs/list.js";
 import SubscribeJobsCommand from "./commands/jobs/subscribe.js";
+import logger from "./logger.js";
 import { getToken } from "./token.js";
 
 yargs(hideBin(process.argv))
@@ -17,22 +18,22 @@ yargs(hideBin(process.argv))
     const commands = [ListJobsCommand, SubscribeJobsCommand];
 
     client.once(Events.ClientReady, async (client) => {
-      console.info(`Logged in as ${client.user.tag}!`);
+      logger.info(`Logged in as ${client.user.tag}!`);
 
       try {
         await client.rest.put(
           Routes.applicationCommands(client.application.id),
           { body: commands.map((command) => command.data.toJSON()) },
         );
-        console.info("Commands registered!");
+        logger.info("Commands registered!");
       } catch (err) {
-        console.error(`Failed to register commands: ${getErrorMessage(err)}`);
+        logger.error(`Failed to register commands: ${getErrorMessage(err)}`);
       }
     });
 
     client.on(Events.InteractionCreate, async (interaction) => {
       if (!interaction.isChatInputCommand()) return;
-      console.log(`Received command: ${interaction.commandName}`);
+      logger.debug(`Received command: ${interaction.commandName}`);
 
       const command = commands.find(
         (command) => command.data.name === interaction.commandName,
@@ -41,12 +42,12 @@ yargs(hideBin(process.argv))
         try {
           await command.execute(interaction);
         } catch (err) {
-          console.error(
+          logger.error(
             `Failed to execute handler for command: ${command.data.name}, error: ${getErrorMessage(err)}`,
           );
         }
       } else {
-        console.warn(
+        logger.warn(
           `Could not find handler for command: ${interaction.commandName}`,
         );
       }
@@ -55,7 +56,7 @@ yargs(hideBin(process.argv))
     try {
       await client.login(await getToken());
     } catch (err) {
-      console.error(`Failed to log in: ${getErrorMessage(err)}`);
+      logger.error(`Failed to log in: ${getErrorMessage(err)}`);
     }
   })
   .demandCommand(1)

@@ -1,6 +1,7 @@
 import { getErrorMessage } from "catched-error-message";
 import { bold, hideLinkEmbed } from "discord";
 import RssParser, { Item } from "rss-parser";
+import logger from "./logger.js";
 
 const rssParser = new RssParser();
 
@@ -15,7 +16,7 @@ export async function tryToFetchRssFeedFromUrl(url: string): Promise<Item[]> {
     const res = await rssParser.parseURL(url);
     return res.items;
   } catch (err) {
-    console.warn(
+    logger.warn(
       `Failed to fetch RSS feed from '${url}': ${getErrorMessage(err)}`,
     );
     return [];
