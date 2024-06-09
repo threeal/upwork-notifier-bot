@@ -1,18 +1,27 @@
 import { jest } from "@jest/globals";
-import { tryToSendMessageToChannel } from "./message.js";
+import { pino } from "pino";
+import pinoTest from "pino-test";
 
-const mockedConsoleWarning = jest.spyOn(console, "warn").mockReset();
+const stream = pinoTest.sink();
+jest.unstable_mockModule("./logger.js", () => ({
+  default: pino(stream),
+}));
 
-it.concurrent("should not send a message to an invalid channel", async () => {
+it("should not send a message to an invalid channel", async () => {
+  const { tryToSendMessageToChannel } = await import("./message.js");
+
   const prom = tryToSendMessageToChannel("some message", null);
   await expect(prom).resolves.toBe(false);
 
-  expect(mockedConsoleWarning).toHaveBeenCalledWith(
-    "Could not send a message to an invalid channel",
-  );
+  await pinoTest.once(stream, {
+    level: 40,
+    msg: "Could not send a message to an invalid channel",
+  });
 });
 
-it.concurrent("should send a message to a channel", async () => {
+it("should send a message to a channel", async () => {
+  const { tryToSendMessageToChannel } = await import("./message.js");
+
   const channel = { send: jest.fn() };
 
   const prom = tryToSendMessageToChannel("some message", channel as any);
@@ -22,7 +31,9 @@ it.concurrent("should send a message to a channel", async () => {
   expect(channel.send).toHaveBeenLastCalledWith("some message");
 });
 
-it.concurrent("should failed to send a message to a channel", async () => {
+it("should failed to send a message to a channel", async () => {
+  const { tryToSendMessageToChannel } = await import("./message.js");
+
   const channel = {
     send: jest.fn(async () => {
       throw new Error("some error");
@@ -32,7 +43,15 @@ it.concurrent("should failed to send a message to a channel", async () => {
   const prom = tryToSendMessageToChannel("some message", channel as any);
   await expect(prom).resolves.toBe(false);
 
-  expect(mockedConsoleWarning).toHaveBeenLastCalledWith(
-    "Failed to send a message to the channel: some error",
-  );
+  await pinoTest.once(stream, {
+    level: 40,
+    msg: "Failed to send a message to the channel: some error",
+  });
+});
+
+afterAll(async () => {
+  const logger = (await import("./logger.js")).default;
+
+  logger.info("stream ended");
+  await pinoTest.once(stream, { level: 30, msg: "stream ended" });
 });

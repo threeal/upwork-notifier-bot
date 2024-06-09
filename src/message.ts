@@ -1,5 +1,6 @@
 import { getErrorMessage } from "catched-error-message";
 import { TextBasedChannel } from "discord";
+import logger from "./logger.js";
 
 /**
  * Attempts to send a message to a channel.
@@ -13,7 +14,7 @@ export async function tryToSendMessageToChannel(
   channel: TextBasedChannel | null,
 ): Promise<boolean> {
   if (channel === null) {
-    console.warn("Could not send a message to an invalid channel");
+    logger.warn("Could not send a message to an invalid channel");
     return false;
   }
 
@@ -21,7 +22,7 @@ export async function tryToSendMessageToChannel(
     await channel.send(message);
     return true;
   } catch (err) {
-    console.warn(
+    logger.warn(
       `Failed to send a message to the channel: ${getErrorMessage(err)}`,
     );
     return false;
