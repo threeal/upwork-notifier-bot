@@ -29,6 +29,15 @@ jest.unstable_mockModule("../../feed.js", () => ({
   },
 }));
 
+jest.unstable_mockModule("../../store.js", () => ({
+  default: new (class {
+    data: string[] = [];
+    update(fn: (data: string[]) => void) {
+      fn(this.data);
+    }
+  })(),
+}));
+
 const interaction = {
   channel: {
     send: jest.fn(),

@@ -6,6 +6,7 @@ import {
 
 import { formatRssFeedItem, tryToFetchRssFeedFromUrl } from "../../feed.js";
 import { tryToSendMessageToChannel } from "../../message.js";
+import store from "../../store.js";
 
 export default {
   data: new SlashCommandBuilder()
@@ -21,16 +22,15 @@ export default {
     const url = interaction.options.getString("url");
     await interaction.reply(`Subscribed to: <${url}>`);
 
-    const guids = new Set<string>();
     const callback = async () => {
       const feed = await tryToFetchRssFeedFromUrl(`${url}`);
       for (const item of feed) {
-        if (guids.has(`${item.guid}`)) continue;
+        if (store.data.includes(`${item.guid}`)) continue;
         const sent = await tryToSendMessageToChannel(
           formatRssFeedItem(item),
           interaction.channel,
         );
-        if (sent) guids.add(`${item.guid}`);
+        if (sent) store.update((data) => data.push(`${item.guid}`));
       }
     };
 
