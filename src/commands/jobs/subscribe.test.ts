@@ -1,5 +1,12 @@
 import { jest } from "@jest/globals";
 import { CacheType, ChatInputCommandInteraction } from "discord";
+import { pino } from "pino";
+import pinoTest from "pino-test";
+
+const stream = pinoTest.sink();
+jest.unstable_mockModule("../../logger.js", () => ({
+  default: pino(stream),
+}));
 
 jest.useFakeTimers();
 
@@ -76,4 +83,11 @@ it("should subscribe jobs from the given RSS feed URL", async () => {
     ["Third Job"],
     ["Fourth Job"],
   ]);
+});
+
+afterAll(async () => {
+  const logger = (await import("../../logger.js")).default;
+
+  logger.info("stream ended");
+  await pinoTest.once(stream, { level: 30, msg: "stream ended" });
 });
