@@ -1,6 +1,13 @@
 import { jest } from "@jest/globals";
 import { CacheType, ChatInputCommandInteraction } from "discord";
+import { pino } from "pino";
+import pinoTest from "pino-test";
 import { formatRssFeedItem } from "../../feed.js";
+
+const stream = pinoTest.sink();
+jest.unstable_mockModule("./logger.js", () => ({
+  default: pino(stream),
+}));
 
 const rssFeedItems = [
   {
@@ -55,4 +62,11 @@ it("should list jobs from the given RSS feed URL", async () => {
   expect(interaction.channel.send.mock.calls).toEqual(
     rssFeedItems.map((item) => [formatRssFeedItem(item)]),
   );
+});
+
+afterAll(async () => {
+  const logger = (await import("../../logger.js")).default;
+
+  logger.info("stream ended");
+  await pinoTest.once(stream, { level: 30, msg: "stream ended" });
 });
