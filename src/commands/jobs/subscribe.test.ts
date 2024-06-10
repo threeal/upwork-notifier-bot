@@ -28,7 +28,7 @@ it("should subscribe jobs from the given RSS feed URL", async () => {
   }));
 
   // Mock the database for storing listed jobs.
-  jest.unstable_mockModule("../../store.js", () => ({
+  jest.unstable_mockModule("../../store/db.js", () => ({
     default: new (class {
       // Initialize the job with GUID `2` to be already listed.
       data: string[] = ["2"];

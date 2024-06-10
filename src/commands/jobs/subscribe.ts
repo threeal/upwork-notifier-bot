@@ -6,7 +6,7 @@ import {
 
 import { formatRssFeedItem, tryToFetchRssFeedFromUrl } from "../../feed.js";
 import { tryToSendMessageToChannel } from "../../message.js";
-import store from "../../store.js";
+import store from "../../store/db.js";
 
 export default {
   data: new SlashCommandBuilder()
