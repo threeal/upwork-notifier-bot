@@ -27,17 +27,16 @@ it("should subscribe jobs from the given RSS feed URL", async () => {
     tryToSendMessageToChannel,
   }));
 
-  // Mock the database for storing listed jobs.
-  jest.unstable_mockModule("../../store.js", () => ({
-    default: new (class {
-      // Initialize the job with GUID `2` to be already listed.
-      data: string[] = ["2"];
+  // Mock the database for storing posted jobs.
+  jest.unstable_mockModule("../../store/jobs.js", () => {
+    // Initialize the job with ID `2` to be already posted.
+    const postedJobs: string[] = ["2"];
 
-      update(fn: (data: string[]) => void) {
-        fn(this.data);
-      }
-    })(),
-  }));
+    return {
+      isJobPosted: (jobId: string) => postedJobs.includes(jobId),
+      markJobAsPosted: async (jobId: string) => postedJobs.push(jobId),
+    };
+  });
 
   // Construct a mocked interaction.
   const interaction = {

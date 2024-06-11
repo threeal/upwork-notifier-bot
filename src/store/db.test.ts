@@ -10,7 +10,7 @@ it("should create a database file in the current working directory", async () =>
   // Expect there to be no database file in the current working directory.
   await expect(fs.access("db.json", fs.constants.F_OK)).rejects.toThrow();
 
-  await import("./store.js");
+  await import("./db.js");
 
   // Expect there to be a database file in the current working directory.
   await fs.access("db.json", fs.constants.F_OK);
