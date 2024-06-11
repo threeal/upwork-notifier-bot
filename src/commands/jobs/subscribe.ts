@@ -6,7 +6,7 @@ import {
 
 import { formatRssFeedItem, tryToFetchRssFeedFromUrl } from "../../feed.js";
 import { tryToSendMessageToChannel } from "../../message.js";
-import store from "../../store/db.js";
+import { isJobPosted, markJobAsPosted } from "../../store/jobs.js";
 
 export default {
   data: new SlashCommandBuilder()
@@ -25,12 +25,12 @@ export default {
     const callback = async () => {
       const feed = await tryToFetchRssFeedFromUrl(`${url}`);
       for (const item of feed) {
-        if (store.data.includes(`${item.guid}`)) continue;
+        if (isJobPosted(item.guid)) continue;
         const sent = await tryToSendMessageToChannel(
           formatRssFeedItem(item),
           interaction.channel,
         );
-        if (sent) store.update((data) => data.push(`${item.guid}`));
+        if (sent) await markJobAsPosted(item.guid);
       }
     };
 
