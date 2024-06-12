@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "catched-error-message": "^0.0.1",
+    "cron": "^3.1.7",
     "discord": "npm:discord.js@^14.15.2",
     "lowdb": "^7.0.1",
     "pino": "^9.1.0",
