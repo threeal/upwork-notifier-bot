@@ -1,84 +1,47 @@
 import { jest } from "@jest/globals";
 
-it("should subscribe jobs from the given RSS feed URL", async () => {
-  jest.useFakeTimers();
+describe("subscribe jobs from an RSS feed URL", () => {
+  const handleJobSubscription = jest.fn<any>();
 
-  // Construct the RSS feed items that will be fetched.
-  const rssFeedItems = [
-    { title: "First Job", guid: "1" },
-    { title: "Second Job", guid: "2" },
-    { title: "Third Job", guid: "3" },
-  ];
+  beforeAll(() => {
+    jest.useFakeTimers();
 
-  jest.unstable_mockModule("../../feed.js", () => ({
-    // Mock the RSS feed item to be formatted with just the item's title.
-    formatRssFeedItem: (item: { title: string }) => item.title,
-
-    // Mock the RSS feed items that will be fetched.
-    tryToFetchRssFeedFromUrl: async (url: string) => {
-      if (url === "https://www.upwork.com/some-rss") return rssFeedItems;
-      return [];
-    },
-  }));
-
-  // Mock the function for sending the message.
-  const tryToSendMessageToChannel = jest.fn().mockReturnValue(true);
-  jest.unstable_mockModule("../../message.js", () => ({
-    tryToSendMessageToChannel,
-  }));
-
-  // Mock the database for storing posted jobs.
-  jest.unstable_mockModule("../../store/jobs.js", () => {
-    // Initialize the job with ID `2` to be already posted.
-    const postedJobs: string[] = ["2"];
-
-    return {
-      isJobPosted: (jobId: string) => postedJobs.includes(jobId),
-      markJobAsPosted: async (jobId: string) => postedJobs.push(jobId),
-    };
+    jest.unstable_mockModule("../../schedules/jobs.js", () => ({
+      handleJobSubscription,
+    }));
   });
 
-  // Construct a mocked interaction.
-  const interaction = {
-    channel: {},
-    options: {
-      getString: (key: string) => {
-        if (key === "url") return "https://www.upwork.com/some-rss";
-        return "";
+  it("should reply with the correct message", async () => {
+    const SubscribeJobsCommand = (await import("./subscribe.js")).default;
+
+    const interaction = {
+      channel: "some channel",
+      options: {
+        getString: (key: string) => (key === "url" ? "some URL" : ""),
       },
-    },
-    reply: jest.fn(),
-  };
+      reply: jest.fn(),
+    };
 
-  // Execute the command with a mocked interaction.
-  const SubscribeJobsCommand = (await import("./subscribe.js")).default;
-  await SubscribeJobsCommand.execute(interaction as any);
+    await SubscribeJobsCommand.execute(interaction as any);
 
-  // Expect to reply with the correct message.
-  expect(interaction.reply.mock.calls).toEqual([
-    ["Subscribed to: <https://www.upwork.com/some-rss>"],
-  ]);
+    // Expect to reply with the correct message.
+    expect(interaction.reply.mock.calls).toEqual([
+      ["Subscribed to: <some URL>"],
+    ]);
 
-  // Expect to send the correct messages to the channel.
-  expect(tryToSendMessageToChannel.mock.calls).toEqual([
-    ["First Job", interaction.channel],
-    ["Third Job", interaction.channel],
-  ]);
+    // Expect to handle the job subscription immediately.
+    expect(handleJobSubscription.mock.calls).toEqual([
+      ["some URL", "some channel"],
+    ]);
+  });
 
-  // Advance the time without updating the RSS feed items.
-  tryToSendMessageToChannel.mockClear();
-  await jest.advanceTimersByTimeAsync(60000);
-
-  // Expect to send no messages to the channel.
-  expect(tryToSendMessageToChannel.mock.calls).toEqual([]);
-
-  // Advance the time with updating the RSS feed items.
-  rssFeedItems.push({ title: "Fourth Job", guid: "4" });
-  tryToSendMessageToChannel.mockClear();
-  await jest.advanceTimersByTimeAsync(60000);
-
-  // Expect to only send the new messages to the channel.
-  expect(tryToSendMessageToChannel.mock.calls).toEqual([
-    ["Fourth Job", interaction.channel],
-  ]);
+  it("should handle the job subscription every second", async () => {
+    for (let i = 0; i < 10; ++i) {
+      handleJobSubscription.mockClear();
+      await jest.advanceTimersByTimeAsync(60000);
+      expect(handleJobSubscription.mock.calls).toEqual([
+        ["some URL", "some channel"],
+      ]);
+    }
+  });
 });
