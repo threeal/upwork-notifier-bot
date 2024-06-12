@@ -18,10 +18,15 @@ export default {
     ),
   execute: async (interaction: ChatInputCommandInteraction<CacheType>) => {
     const url = interaction.options.getString("url");
+    if (url === null) {
+      interaction.reply("The `url` option is required to subscribe to jobs");
+      return;
+    }
+
     await interaction.reply(`Subscribed to: <${url}>`);
 
     const callback = async () => {
-      await handleJobSubscription(`${url}`, interaction.channel);
+      await handleJobSubscription(url, interaction.channel);
     };
 
     await callback();
