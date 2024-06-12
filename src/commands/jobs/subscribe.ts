@@ -4,9 +4,7 @@ import {
   SlashCommandBuilder,
 } from "discord";
 
-import { formatRssFeedItem, tryToFetchRssFeedFromUrl } from "../../feed.js";
-import { tryToSendMessageToChannel } from "../../message.js";
-import { isJobPosted, markJobAsPosted } from "../../store/jobs.js";
+import { handleJobSubscription } from "../../schedules/jobs.js";
 
 export default {
   data: new SlashCommandBuilder()
@@ -23,15 +21,7 @@ export default {
     await interaction.reply(`Subscribed to: <${url}>`);
 
     const callback = async () => {
-      const feed = await tryToFetchRssFeedFromUrl(`${url}`);
-      for (const item of feed) {
-        if (isJobPosted(item.guid)) continue;
-        const sent = await tryToSendMessageToChannel(
-          formatRssFeedItem(item),
-          interaction.channel,
-        );
-        if (sent) await markJobAsPosted(item.guid);
-      }
+      await handleJobSubscription(`${url}`, interaction.channel);
     };
 
     await callback();
