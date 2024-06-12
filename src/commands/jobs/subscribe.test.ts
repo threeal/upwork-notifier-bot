@@ -9,6 +9,35 @@ beforeAll(() => {
   }));
 });
 
+describe("subscribe jobs from an empty URL", () => {
+  beforeAll(() => {
+    handleJobSubscription.mockClear();
+    interactionReply.mockClear();
+  });
+
+  it("should execute the command successfully", async () => {
+    const SubscribeJobsCommand = (await import("./subscribe.js")).default;
+
+    // Execute the command with a mocked interaction.
+    await SubscribeJobsCommand.execute({
+      options: {
+        getString: () => null,
+      },
+      reply: interactionReply,
+    } as any);
+  });
+
+  it("should reply with the correct message", () => {
+    expect(interactionReply.mock.calls).toEqual([
+      ["The `url` option is required to subscribe to jobs"],
+    ]);
+  });
+
+  it("should not handle the job subscription", () => {
+    expect(handleJobSubscription.mock.calls).toEqual([]);
+  });
+});
+
 describe("subscribe jobs from an RSS feed URL", () => {
   beforeAll(() => {
     jest.useFakeTimers();
