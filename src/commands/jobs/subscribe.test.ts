@@ -1,41 +1,47 @@
 import { jest } from "@jest/globals";
 
-describe("subscribe jobs from an RSS feed URL", () => {
-  const handleJobSubscription = jest.fn<any>();
+const handleJobSubscription = jest.fn<any>();
+const interactionReply = jest.fn<any>();
 
+beforeAll(() => {
+  jest.unstable_mockModule("../../schedules/jobs.js", () => ({
+    handleJobSubscription,
+  }));
+});
+
+describe("subscribe jobs from an RSS feed URL", () => {
   beforeAll(() => {
     jest.useFakeTimers();
-
-    jest.unstable_mockModule("../../schedules/jobs.js", () => ({
-      handleJobSubscription,
-    }));
+    handleJobSubscription.mockClear();
+    interactionReply.mockClear();
   });
 
-  it("should reply with the correct message", async () => {
+  it("should execute the command successfully", async () => {
     const SubscribeJobsCommand = (await import("./subscribe.js")).default;
 
-    const interaction = {
+    // Execute the command with a mocked interaction.
+    await SubscribeJobsCommand.execute({
       channel: "some channel",
       options: {
         getString: (key: string) => (key === "url" ? "some URL" : ""),
       },
-      reply: jest.fn(),
-    };
+      reply: interactionReply,
+    } as any);
+  });
 
-    await SubscribeJobsCommand.execute(interaction as any);
-
-    // Expect to reply with the correct message.
-    expect(interaction.reply.mock.calls).toEqual([
+  it("should reply with the correct message", () => {
+    expect(interactionReply.mock.calls).toEqual([
       ["Subscribed to: <some URL>"],
     ]);
+  });
 
-    // Expect to handle the job subscription immediately.
+  it("should handle the job subscription immediately", () => {
     expect(handleJobSubscription.mock.calls).toEqual([
       ["some URL", "some channel"],
     ]);
   });
 
-  it("should handle the job subscription every second", async () => {
+  it("should handle the job subscription every minute", async () => {
     for (let i = 0; i < 10; ++i) {
       handleJobSubscription.mockClear();
       await jest.advanceTimersByTimeAsync(60000);
