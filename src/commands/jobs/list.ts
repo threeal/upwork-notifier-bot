@@ -19,7 +19,12 @@ export default {
     ),
   execute: async (interaction: ChatInputCommandInteraction<CacheType>) => {
     const url = interaction.options.getString("url");
-    const feed = await tryToFetchRssFeedFromUrl(`${url}`);
+    if (url === null) {
+      interaction.reply("The `url` option is required to list jobs");
+      return;
+    }
+
+    const feed = await tryToFetchRssFeedFromUrl(url);
     await interaction.reply(`Listing ${feed.length} jobs:`);
     for (const item of feed) {
       await tryToSendMessageToChannel(

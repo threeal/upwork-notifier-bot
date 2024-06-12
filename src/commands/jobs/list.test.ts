@@ -17,6 +17,35 @@ beforeAll(() => {
   }));
 });
 
+describe("list jobs from an empty URL", () => {
+  beforeAll(() => {
+    tryToSendMessageToChannel.mockClear();
+    interactionReply.mockClear();
+  });
+
+  it("should execute the command successfully", async () => {
+    const ListJobsCommand = (await import("./list.js")).default;
+
+    // Execute the command with a mocked interaction.
+    await ListJobsCommand.execute({
+      options: {
+        getString: () => null,
+      },
+      reply: interactionReply,
+    } as any);
+  });
+
+  it("should reply with the correct message", () => {
+    expect(interactionReply.mock.calls).toEqual([
+      ["The `url` option is required to list jobs"],
+    ]);
+  });
+
+  it("should not send any messages to any channels", () => {
+    expect(tryToSendMessageToChannel.mock.calls).toEqual([]);
+  });
+});
+
 describe("list jobs from an RSS feed URL", () => {
   beforeAll(() => {
     tryToFetchRssFeedFromUrl.mockClear().mockResolvedValue([
