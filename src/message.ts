@@ -13,6 +13,7 @@ export async function tryToSendMessageToChannel(
   message: string,
   channel: TextBasedChannel | null,
 ): Promise<boolean> {
+
   if (channel === null) {
     logger.warn("Could not send a message to an invalid channel");
     return false;
