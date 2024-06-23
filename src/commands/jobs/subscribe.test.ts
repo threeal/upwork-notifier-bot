@@ -38,6 +38,36 @@ describe("subscribe jobs from an empty URL", () => {
   });
 });
 
+describe("subscribe jobs from an RSS feed URL with an unavailable channel", () => {
+  beforeAll(() => {
+    handleJobSubscription.mockClear();
+    interactionReply.mockClear();
+  });
+
+  it("should execute the command successfully", async () => {
+    const SubscribeJobsCommand = (await import("./subscribe.js")).default;
+
+    // Execute the command with a mocked interaction.
+    await SubscribeJobsCommand.execute({
+      channel: null,
+      options: {
+        getString: (key: string) => (key === "url" ? "some URL" : ""),
+      },
+      reply: interactionReply,
+    } as any);
+  });
+
+  it("should reply with the correct message", () => {
+    expect(interactionReply.mock.calls).toEqual([
+      ["The destination channel is unavailable for sending the list of jobs."],
+    ]);
+  });
+
+  it("should not handle the job subscription", () => {
+    expect(handleJobSubscription.mock.calls).toEqual([]);
+  });
+});
+
 describe("subscribe jobs from an RSS feed URL", () => {
   beforeAll(() => {
     jest.useFakeTimers();
