@@ -11,13 +11,8 @@ import logger from "./logger.js";
  */
 export async function tryToSendMessageToChannel(
   message: string,
-  channel: TextBasedChannel | null,
+  channel: TextBasedChannel,
 ): Promise<boolean> {
-  if (channel === null) {
-    logger.warn("Could not send a message to an invalid channel");
-    return false;
-  }
-
   try {
     await channel.send(message);
     return true;

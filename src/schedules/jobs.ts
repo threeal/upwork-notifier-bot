@@ -16,7 +16,7 @@ import { isJobPosted, markJobAsPosted } from "../store/jobs.js";
  */
 export async function handleJobSubscription(
   url: string,
-  channel: TextBasedChannel | null,
+  channel: TextBasedChannel,
 ): Promise<void> {
   const feed = await tryToFetchRssFeedFromUrl(url);
   for (const item of feed) {

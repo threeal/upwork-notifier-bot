@@ -23,10 +23,18 @@ export default {
       return;
     }
 
+    const channel = interaction.channel;
+    if (channel === null) {
+      interaction.reply(
+        "The destination channel is unavailable for sending the list of jobs.",
+      );
+      return;
+    }
+
     await interaction.reply(`Subscribed to: <${url}>`);
 
     const callback = async () => {
-      await handleJobSubscription(url, interaction.channel);
+      await handleJobSubscription(url, channel);
     };
 
     await callback();

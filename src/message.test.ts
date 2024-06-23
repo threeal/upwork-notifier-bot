@@ -7,18 +7,6 @@ jest.unstable_mockModule("./logger.js", () => ({
   default: pino(stream),
 }));
 
-it("should not send a message to an invalid channel", async () => {
-  const { tryToSendMessageToChannel } = await import("./message.js");
-
-  const prom = tryToSendMessageToChannel("some message", null);
-  await expect(prom).resolves.toBe(false);
-
-  await pinoTest.once(stream, {
-    level: 40,
-    msg: "Could not send a message to an invalid channel",
-  });
-});
-
 it("should send a message to a channel", async () => {
   const { tryToSendMessageToChannel } = await import("./message.js");
 
