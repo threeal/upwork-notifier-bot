@@ -24,6 +24,13 @@ export default {
       return;
     }
 
+    if (interaction.channel === null) {
+      interaction.reply(
+        "The destination channel is unavailable for sending the list of jobs.",
+      );
+      return;
+    }
+
     const feed = await tryToFetchRssFeedFromUrl(url);
     await interaction.reply(`Listing ${feed.length} jobs:`);
     for (const item of feed) {

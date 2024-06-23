@@ -46,6 +46,36 @@ describe("list jobs from an empty URL", () => {
   });
 });
 
+describe("list jobs from an RSS feed URL with an unavailable channel", () => {
+  beforeAll(() => {
+    tryToSendMessageToChannel.mockClear();
+    interactionReply.mockClear();
+  });
+
+  it("should execute the command successfully", async () => {
+    const ListJobsCommand = (await import("./list.js")).default;
+
+    // Execute the command with a mocked interaction.
+    await ListJobsCommand.execute({
+      channel: null,
+      options: {
+        getString: (key: string) => (key === "url" ? "some URL" : ""),
+      },
+      reply: interactionReply,
+    } as any);
+  });
+
+  it("should reply with the correct message", () => {
+    expect(interactionReply.mock.calls).toEqual([
+      ["The destination channel is unavailable for sending the list of jobs."],
+    ]);
+  });
+
+  it("should not send any messages to any channels", () => {
+    expect(tryToSendMessageToChannel.mock.calls).toEqual([]);
+  });
+});
+
 describe("list jobs from an RSS feed URL", () => {
   beforeAll(() => {
     tryToFetchRssFeedFromUrl.mockClear().mockResolvedValue([
