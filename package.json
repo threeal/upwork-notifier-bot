@@ -55,7 +55,7 @@
     "ts-jest": "^29.2.2",
     "tsx": "^4.16.2",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^7.15.0"
+    "typescript-eslint": "^7.16.1"
   },
   "packageManager": "yarn@4.3.1"
 }
