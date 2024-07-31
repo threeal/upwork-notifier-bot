@@ -35,7 +35,7 @@
     "discord": "npm:discord.js@^14.15.2",
     "lowdb": "^7.0.1",
     "pino": "^9.3.2",
-    "pino-pretty": "^11.2.1",
+    "pino-pretty": "^11.2.2",
     "rss-parser": "^3.13.0",
     "yargs": "^17.7.2"
   },
